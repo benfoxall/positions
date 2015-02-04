@@ -88,3 +88,22 @@ a:hover{
 #time-buttons li.last .cancel{
   display: block;
 }
+
+
+#noise{
+  height: 100%;
+  background: rgb(40, 51, 58);
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  top: 0;
+  font-size: 2em;
+  text-align: center;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  display: none;
+}
+#noise p {
+  padding:3em 1em;
+}

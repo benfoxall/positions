@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <h1>client</h1>
+  <h2>Timings - press this when instructed</h2>
 
   <ul id="time-buttons">
     <li>A <span class="cancel">&times;</span></li>
@@ -16,23 +16,35 @@
     <li>C <span class="cancel">&times;</span></li>
   </ul>
 
+  <div id="noise">
+    <p>
+      turn up your volume
+    </p>
+  </div>
+
   <script src="bower_components/jquery/dist/jquery.js"></script>
 
   <script type="text/javascript">
+    function now(){
+      return window.performance ? window.performance.now() : 
+              Date.now ? Date.now() : +new Date;
+    }
 
-    var timings = []
+    var timings = [];
 
     var $buttons = $('#time-buttons li')
 
     $buttons.each(function(i){
       $(this).on('mousedown touchstart', function(e){
-        var t = Date.now()
+        var t = now();
 
         if($(this).hasClass('active')){
           e.preventDefault();
           timings[i] = t
           update()
-          console.log("click")
+          if(timings.length === 3){
+            go()
+          }
         }
 
       })
@@ -58,6 +70,65 @@
     }
 
     update()
+
+
+    // the actual stuff things
+
+    $(document).on('mousedown touchstart', function(){
+      if(play(true)){
+        console.log("Played silent")
+        $(document).off('mousedown touchstart')
+      }
+    })
+
+    var tingBuffer;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '_ting.mp3', true);
+    xhr.responseType = 'arraybuffer';
+
+    // Decode asynchronously
+    xhr.onload = function() {
+      context.decodeAudioData(xhr.response, function(buffer) {
+        tingBuffer = buffer;
+      }, function(e){
+          console.log("an error occured requesting ", url, e)
+      });
+    }
+    xhr.send();
+
+
+    var context =
+      typeof(webkitAudioContext) !== 'undefined' ? 
+         new webkitAudioContext() :
+         new AudioContext();
+
+    function play(silent){
+
+      if(!tingBuffer) return false;
+
+      var source = context.createBufferSource();
+      var gainNode = context.createGain();
+
+      source.buffer = tingBuffer;
+      gainNode.gain.value = silent ? 0.01 : 1;
+
+      source.connect(gainNode);
+      gainNode.connect(context.destination);
+      source.start(0);
+
+      return true;
+    }
+
+    function go(){
+      $('#noise').css('opacity',0).show().animate({'opacity':1});
+
+      setTimeout(function(){
+        play()
+      },1000)
+    }
+
+
   </script>
 
 
