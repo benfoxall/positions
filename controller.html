@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Positions / controller</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>Controller</h1>
+
+  <!--h3>todo - post statusses to server <input type="url" /> </h3-->
+
+  <hr />
+
+  <div id="time_circle"></div>
+  <p id="time_count"></p>
+
+  <script src="bower_components/d3/d3.js"></script>
+  <script type="text/javascript">
+  var width = 400, height = 400, cycle = 30000;
+
+  function progress(t){
+    return (t / cycle) % 1;
+  }
+
+  var r = Math.min(width, height)/2;
+
+  var svg = d3.select('#time_circle')
+              .append('svg')
+              .attr('width', width)
+              .attr('height', height);
+
+
+  svg.append('circle')
+      .attr('cx', width/2)
+      .attr('cy', height/2)
+      .attr('r', r*0.8);
+
+
+  var path = svg.append('line')
+                .attr('x1', width/2)
+                .attr('y1', height/2)
+                .attr('x2', 0)
+                .attr('y2', 0);
+
+
+  function x(time){
+    return (Math.sin(time*Math.PI*2) * r * 0.82) + r;
+  }
+
+  function y(time){
+    return (Math.cos(time*Math.PI*2) * r * 0.82) + r;
+  }
+
+  var timeCount = document.getElementById('time_count');
+
+  var off = (Date.now() - window.performance.now()) % cycle;
+
+  function render(t){
+    t = t+off;
+
+    requestAnimationFrame(render);
+    if(!t) return; // first call doesn't have timestamp
+
+    var n = progress(t);
+
+    // this one goes twice round
+    var n2 = n*2;
+
+    path
+      .attr('x2', x(n2))
+      .attr('y2', y(n2))
+      .style('stroke', n2 < 1 ? '#f08' : '#eee');
+
+
+    if((t%cycle) < 1000){
+      timeCount.innerHTML = 'go';
+      timeCount.style.color =  '#08f';
+    } else {    
+      var seconds = (cycle - (t%cycle))/1000
+      timeCount.innerHTML = ~~seconds+1;
+      timeCount.style.color =  n2 > 1 ? '#f08' : '#eee'
+    }
+  }
+  render(0.00001);
+
+  </script>
+
+</body>
+</html>

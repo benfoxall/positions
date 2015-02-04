@@ -1,0 +1,20 @@
+{
+  "name": "positions",
+  "version": "0.0.0",
+  "homepage": "https://github.com/benfoxall/positions",
+  "authors": [
+    "Ben Foxall <ben@whiteoctober.co.uk>"
+  ],
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.5.3"
+  }
+}
