@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Positions / client</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>client</h1>
+
+  <ul id="time-buttons">
+    <li>A <span class="cancel">&times;</span></li>
+    <li>B <span class="cancel">&times;</span></li>
+    <li>C <span class="cancel">&times;</span></li>
+  </ul>
+
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+
+  <script type="text/javascript">
+
+    var timings = []
+
+    var $buttons = $('#time-buttons li')
+
+    $buttons.each(function(i){
+      $(this).on('mousedown touchstart', function(e){
+        var t = Date.now()
+
+        if($(this).hasClass('active')){
+          e.preventDefault();
+          timings[i] = t
+          update()
+          console.log("click")
+        }
+
+      })
+
+      $('.cancel', this).on('mousedown touchstart', function(e){
+        if($(this).parent().hasClass('last')){
+          e.preventDefault();
+          e.stopPropagation();
+          if(confirm('delete?')){          
+            timings.pop()
+            update()
+          }
+        }
+      })
+    })
+
+    function update(){
+      $buttons.each(function(i){
+        $(this)
+          .toggleClass('active', i == timings.length)
+          .toggleClass('last', i == timings.length-1)
+      })
+    }
+
+    update()
+  </script>
+
+
+</body>
+</html>

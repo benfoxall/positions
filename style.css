@@ -46,3 +46,45 @@ a:hover{
   text-align: center;
   font-weight: bold;
 }
+
+#time-buttons{
+  padding:0;
+}
+#time-buttons li{
+  list-style:none;
+  background: #E8E8E8;
+  font-size:1.5em;
+  margin:.5em;
+  padding:2em;
+  border-radius: .25em;
+  width: 50%;
+  transition: all .5s;
+}
+#time-buttons li.active{
+  background: #8EA8BE;
+  /* border: 1px solid rgb(104, 104, 110); */
+  color: #fff;
+  /* box-shadow: rgb(184, 184, 184) 0 1px 5px; */
+  cursor: pointer;
+}
+
+
+#time-buttons li .cancel{
+  display: none;
+  background: rgb(142, 168, 190);
+  float: right;
+  width: 1em;
+  text-align: center;
+  border-radius: 100%;
+  padding: .5em;
+  /* position: absolute; */
+  /* right: 0; */
+  margin-top: -.5em;
+  margin-right: -1em;
+  color: rgb(232, 232, 232);
+}
+
+
+#time-buttons li.last .cancel{
+  display: block;
+}
