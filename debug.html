@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Positions / debug</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h2>Debug</h2>
+  <script src="bower_components/d3/d3.js"></script>
+
+  <script type="text/javascript">
+  var clients = d3.range(50).map(function(){
+    return {
+      x: (Math.random()-0.5)*3,
+      y: (Math.random()-.9)*3,
+
+      // debug time offset
+      _offset: Math.random() * 30000
+    }
+  });
+
+  var refs = [
+    {x:-.5, y:0},
+    {x:.5, y:0}
+  ];
+
+  var width = 500, height = 500;
+  var svg = d3.select('body').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+
+
+  var all = refs.concat(clients)
+  var x = d3.scale.linear()
+    .domain(d3.extent(all.map(p('x'))))
+    .range([20, width-20])
+
+  var y = d3.scale.linear()
+    .domain(d3.extent(all.map(p('y'))))
+    .range([20, height-20])
+
+  var circle = svg.selectAll('.c')
+    .data(clients)
+
+  circle.enter()
+    .append('circle')
+    .attr('class','c')
+    .attr('r', 10)
+    .attr('cx', c(x, p('x')))
+    .attr('cy', c(y, p('y')))
+
+  var refs = svg.selectAll('.r')
+    .data(refs)
+
+  refs.enter()
+    .append('circle')
+    .attr('class','c')
+    .attr('r', 15)
+    .attr('fill', '#eee')
+    .attr('cx', c(x, p('x')))
+    .attr('cy', c(y, p('y')))
+
+
+  // assign timestamps to each client
+
+  var cycle = 1000;
+
+  clients.forEach(function(c){
+    var timestamps = []
+
+
+    var t1 = ((Math.atan2(c.x+.5, -c.y) + Math.PI)/(Math.PI*2))*cycle;
+    var t2 = ((Math.atan2(c.x-.5, -c.y) + Math.PI)/(Math.PI*2))*cycle;
+    var t3 = 0;
+
+    // c.t1 = t1;
+
+    // console.log(t1)
+
+    setTimeout(function(){
+      circle.filter(function(d){return d == c})
+        .transition().attr('fill', '#f08')
+    }, t1)
+
+    setTimeout(function(){
+      circle.filter(function(d){return d == c})
+        .transition().attr('fill', '#08f')
+    }, t2+(cycle)*2)
+
+
+    setTimeout(function(){
+      circle.filter(function(d){return d == c})
+        .transition().attr('fill', '#fc0')
+    }, t3+(cycle)*4)
+  })
+
+
+
+
+  // property getter
+  function p(prop){
+    return function(obj){
+      return obj[prop]
+    }
+  }
+
+  // compose
+  function c(a,b){
+    return function(_){
+      return a(b(_))
+    }
+  }
+
+  </script>
+</body>
+</html>
