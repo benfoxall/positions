@@ -26,3 +26,10 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# tweenjs extras
+bower_components/tweenjs/assets
+bower_components/tweenjs/docs
+bower_components/tweenjs/examples
+bower_components/tweenjs/test
+bower_components/tweenjs/utils

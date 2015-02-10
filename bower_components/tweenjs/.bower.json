@@ -1,0 +1,13 @@
+{
+  "name": "tweenjs",
+  "homepage": "https://github.com/benfoxall/tween.js",
+  "_release": "f35b924f97",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "f35b924f97a6f7ada1a11a759211df6bb7caae41"
+  },
+  "_source": "git@github.com:benfoxall/tween.js.git",
+  "_target": "*",
+  "_originalSource": "git@github.com:benfoxall/tween.js.git"
+}

@@ -15,6 +15,7 @@
     "tests"
   ],
   "dependencies": {
-    "d3": "~3.5.3"
+    "d3": "~3.5.3",
+    "tweenjs": "git@github.com:benfoxall/tween.js.git"
   }
 }
