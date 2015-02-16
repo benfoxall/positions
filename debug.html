@@ -73,7 +73,7 @@
 
   // assign timestamps to each client
 
-  var cycle = 15000;
+  var cycle = 1000;
 
   clients.forEach(function(c){
     var timestamps = []
@@ -86,6 +86,21 @@
     c.t1 = t1 + c._offset - (4 * cycle);
     c.t2 = t2 + c._offset - (2 * cycle);
     c.t3 = t3 + c._offset;
+
+
+    c.a1 = (mod(c.t1-c.t3, cycle) / cycle) * Math.PI *2;
+    c.a2 = (mod(c.t2-c.t3, cycle) / cycle) * Math.PI *2;
+
+    var p1 = [-1,0], p2 = [1, 0];
+
+    var p1_ = point2(p1[0], p1[1], c.a1);
+    var p2_ = point2(p2[0], p2[1], c.a2);
+
+    var xy  = intersect(p1[0],p1[1], p1_[0],p1_[1], p2[0],p2[1], p2_[0],p2_[1]);
+
+    c.x = xy[0];
+    c.y = xy[1];
+
 
     // setTimeout(function(){
     //   circle.filter(function(d){return d == c})
@@ -108,7 +123,7 @@
 
     // var cycle = 5000;
 
-    c.t = (c.t1-c.t3)%cycle;
+    c.t = c.t2;
 
     // new TWEEN.Tween(c).to({t:c.t2%cycle}, 10000).start()
     // .chain(new TWEEN.Tween(c).to({t:c.t3%cycle}, 10000))
@@ -119,9 +134,6 @@
 
       var t = c.t;
 
-      // t = t / 3
-
-
       var now = window.performance.now() + c._offset - t;
 
       var l = Math.round((Math.sin( ( now / cycle) * Math.PI*2 )) *200);
@@ -130,10 +142,9 @@
       if(l < -50) l = -50;
 
       l += 50
-      // console.log(l);
 
-      el.attr('fill', 'hsl(0,0%,' + l + '%)')
-// hsl(21,70%,50%)
+      el.attr('fill', 'hsl(0,0%,' + l + '%)');
+
     }
 
     requestAnimationFrame(update)
@@ -163,6 +174,101 @@ requestAnimationFrame(function tw(t){
       return a(b(_))
     }
   }
+
+
+
+
+  // maths stuff
+
+  // a modulus that will deal with negative numbers
+  function mod(n, m){
+    return ((n % m) + m) % m
+  }
+
+  // a point 1 unit away at `angle`
+  function point2(x, y, angle){
+    return [
+       Math.sin(angle) + x,
+      -Math.cos(angle) + y
+    ]
+  }
+
+  // l1: (x1, y1) -> (x2, y2), l2: (x3, y3) -> (x4, y4)
+  function intersect(x1, y1, x2, y2, x3, y3, x4, y4){
+    var x =
+      (
+        (x1 * y2 - y1 * x2) * (x3 - x4)
+        -
+        (x1 - x2) * (x3 * y4 - y3 * x4)
+      ) / (
+        (x1 - x2) * (y3 - y4)
+        -
+        (y1 - y2) * (x3 - x4)
+      );
+
+    var y =
+      (
+        (x1 * y2 - y1 * x2) * (y3 - y4)
+        -
+        (y1 - y2) * (x3 * y4 - y3 * x4)
+      ) / (
+        (x1 - x2) * (y3 - y4)
+        -
+        (y1 - y2) * (x3 - x4)
+      );
+
+    return [
+      isFinite(x) ? x : 0,
+      isFinite(y) ? y : 0
+    ]
+  }
+
+
+
+
+
+
+
+  var tingBuffer;
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '_ting.mp3', true);
+  xhr.responseType = 'arraybuffer';
+
+  // Decode asynchronously
+  xhr.onload = function() {
+    context.decodeAudioData(xhr.response, function(buffer) {
+      tingBuffer = buffer;
+    }, function(e){
+        console.log("an error occured requesting ", url, e)
+    });
+  }
+  xhr.send();
+
+
+  var context =
+    typeof(webkitAudioContext) !== 'undefined' ? 
+       new webkitAudioContext() :
+       new AudioContext();
+
+  function play(silent){
+
+    if(!tingBuffer) return false;
+
+    var source = context.createBufferSource();
+    var gainNode = context.createGain();
+
+    source.buffer = tingBuffer;
+    gainNode.gain.value = silent ? 0.01 : 1;
+
+    source.connect(gainNode);
+    gainNode.connect(context.destination);
+    source.start(0);
+
+    return true;
+  }
+
+
 
   </script>
 </body>
