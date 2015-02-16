@@ -6,16 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Positions / debug</title>
   <link rel="stylesheet" type="text/css" href="style.css">
+  <style type="text/css">
+    body{
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <h2>Debug</h2>
+  <!-- <h2>Debug</h2> -->
   <script src="bower_components/d3/d3.js"></script>
+  <script src="bower_components/tweenjs/build/tween.min.js"></script>
 
   <script type="text/javascript">
   var clients = d3.range(50).map(function(){
     return {
       x: (Math.random()-0.5)*3,
-      y: (Math.random()-.9)*3,
+      y: (Math.random()-0.5)*3,
 
       // debug time offset
       _offset: Math.random() * 30000
@@ -27,7 +33,7 @@
     {x:.5, y:0}
   ];
 
-  var width = 500, height = 500;
+  var width = window.innerWidth, height = window.innerHeight;
   var svg = d3.select('body').append('svg')
     .attr('width', width)
     .attr('height', height);
@@ -60,14 +66,14 @@
     .append('circle')
     .attr('class','c')
     .attr('r', 15)
-    .attr('fill', '#eee')
+    .attr('fill', '#8fc')
     .attr('cx', c(x, p('x')))
     .attr('cy', c(y, p('y')))
 
 
   // assign timestamps to each client
 
-  var cycle = 1000;
+  var cycle = 15000;
 
   clients.forEach(function(c){
     var timestamps = []
@@ -77,26 +83,69 @@
     var t2 = ((Math.atan2(c.x-.5, -c.y) + Math.PI)/(Math.PI*2))*cycle;
     var t3 = 0;
 
-    // c.t1 = t1;
+    c.t1 = t1 + c._offset - (4 * cycle);
+    c.t2 = t2 + c._offset - (2 * cycle);
+    c.t3 = t3 + c._offset;
 
-    // console.log(t1)
+    // setTimeout(function(){
+    //   circle.filter(function(d){return d == c})
+    //     .transition().attr('fill', '#f08')
+    // }, t1)
 
-    setTimeout(function(){
-      circle.filter(function(d){return d == c})
-        .transition().attr('fill', '#f08')
-    }, t1)
+    // setTimeout(function(){
+    //   circle.filter(function(d){return d == c})
+    //     .transition().attr('fill', '#08f')
+    // }, t2+(cycle)*2)
 
-    setTimeout(function(){
-      circle.filter(function(d){return d == c})
-        .transition().attr('fill', '#08f')
-    }, t2+(cycle)*2)
+    // setTimeout(function(){
+    //   circle.filter(function(d){return d == c})
+    //     .transition().attr('fill', '#fc0')
+    // }, t3+(cycle)*4)
+
+    // each client would be running locally
+
+    var el = circle.filter(function(d){return d == c});
+
+    // var cycle = 5000;
+
+    c.t = (c.t1-c.t3)%cycle;
+
+    // new TWEEN.Tween(c).to({t:c.t2%cycle}, 10000).start()
+    // .chain(new TWEEN.Tween(c).to({t:c.t3%cycle}, 10000))
+
+    // to be called whenever
+    function update(t){
+      requestAnimationFrame(update)
+
+      var t = c.t;
+
+      // t = t / 3
 
 
-    setTimeout(function(){
-      circle.filter(function(d){return d == c})
-        .transition().attr('fill', '#fc0')
-    }, t3+(cycle)*4)
+      var now = window.performance.now() + c._offset - t;
+
+      var l = Math.round((Math.sin( ( now / cycle) * Math.PI*2 )) *200);
+
+      if(l > 50) l = 50;
+      if(l < -50) l = -50;
+
+      l += 50
+      // console.log(l);
+
+      el.attr('fill', 'hsl(0,0%,' + l + '%)')
+// hsl(21,70%,50%)
+    }
+
+    requestAnimationFrame(update)
+
   })
+
+
+
+requestAnimationFrame(function tw(t){
+  requestAnimationFrame(tw);
+  TWEEN.update(t)
+})
 
 
 
