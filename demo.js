@@ -19,14 +19,11 @@
     return 'hsl('+Math.round(h)+', '+Math.round(s*100)+'%, '+(l*100)+'%)'
   }
 
-  function Demo(ui, x, y, timings, data){
+  function Demo(ui, timings, data){
     // pull out the ui
     this.el = ui.el;
     this.timings = timings;
     this.data = data;
-
-    this.x = x;
-    this.y = y;
 
     // add each of the steps
 

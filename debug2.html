@@ -176,8 +176,6 @@
   })
 
 
-  
-  var redies = 0;
   window.addEventListener("message", receiveMessage, false);
   function receiveMessage(event)
   {
@@ -186,9 +184,6 @@
       return f.contentWindow === event.source;
     })[0];
 
-    redies++;
-
-    console.log(redies)
 
     if(match){
       d3

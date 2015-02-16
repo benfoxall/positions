@@ -114,11 +114,6 @@
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     window.context = parent.context || new AudioContext();
 
-    // window.context = window.parent.context || 
-    //   typeof(webkitAudioContext) !== 'undefined' ? 
-    //      new webkitAudioContext() :
-    //      new AudioContext();
-
     function play(silent){
 
       if(!tingBuffer) return false;
@@ -158,52 +153,22 @@
       return t;
     }
 
+    var demoCancel;
+
     function go(){
+
+      // ui
       $('#noise').fadeIn();
       $('#content').fadeOut();
       $(document).scrollTop( 0 );
 
-      // work out angles given timestamps
 
-      // setTimeout(function(){
-      //   $('#noise').css('background', 'red')
-      //   // play()
-      // },1000)
-      // setTimeout(function(){
-      //   $('#noise').css('background', 'green')
-      //   // play()
-      // },3000);
-
-      // initialise the various tweens
 
       // reset any tweens
       TWEEN.removeAll();
       TWEEN.update(0.001);
 
-      // addTweens();
-
-      // var tweens = new TweenList();
-
-      // tweens.add({t:0}, {t:1}, 2000)
-      //   .onUpdate(function(){
-      //     var t = timings[1]
-
-      //     var _now = now();
-
-      //     var l = Math.round((Math.sin( ( _now / cycle) * Math.PI*2 )) *200);
-
-      //     if(l > 50) l = 50;
-      //     if(l < -50) l = -50;
-
-      //     l += 50
-
-      //     $('#noise').css('background', 'hsl(150,50%,'+l+'%)');
-      //   });
-
-      // tweens.add({t:0}, {t:1}, 2000)
-      //   .onUpdate(function(){
-
-      //   });
+      // calculate data things
 
       var t1 = timings[0],
           t2 = timings[1],
@@ -211,8 +176,8 @@
 
       var c = {};
 
-      c.a1 = (mod(t1-t3, cycle) / cycle) * Math.PI *2;
-      c.a2 = (mod(t2-t3, cycle) / cycle) * Math.PI *2;
+      c.a1 = (mod(t1-t3, cycle) / cycle) * Math.PI * 2;
+      c.a2 = (mod(t2-t3, cycle) / cycle) * Math.PI * 2;
 
       var p1 = [-1,0], p2 = [1, 0];
 
@@ -224,45 +189,14 @@
       c.x = xy[0];
       c.y = xy[1];
 
-      console.log(c)
+      var demo = new Demo({el:document.getElementById('noise')}, timings, c);
 
+      demoCancel = false;
+      function update(){
+        if(demoCancel) return;
 
-
-
-
-
-      var demo = new Demo(
-        {el:document.getElementById('noise')},
-        1, 1,
-        timings,
-        c
-        );
-
-      // _pulses().start(10000)
-
-
-      function update(t){
         requestAnimationFrame(update);
-
         demo.update(now())
-
-        // TWEEN.update(now());
-
-        return;
-
-        var t = timings[1]
-
-        var _now = now();
-
-        var l = Math.round((Math.sin( ( _now / cycle) * Math.PI*2 )) *200);
-
-        if(l > 50) l = 50;
-        if(l < -50) l = -50;
-
-        l += 50
-
-        $('#noise').css('background', 'hsl(150,50%,'+l+'%)');
-
       }
 
       requestAnimationFrame(update)
@@ -271,6 +205,8 @@
     function stop(){
       $('#content').fadeIn();
       $('#noise').fadeOut();
+      TWEEN.removeAll();
+      demoCancel = true;
     }
 
 
@@ -318,41 +254,7 @@
     ]
   }
 
-  /*
-  function test(){
 
-    function norm(n){
-      return parseFloat(n.toFixed(5))
-    }
-
-    function eql(a,b){
-      a = a.map(norm)
-      b = b.map(norm)
-
-      var result = a[0] === b[0] && a[1] === b[1]
-      if(result)
-        console.log("passed", a)
-      else
-        console.error("expected", a, "to equal", b)
-    }
-
-    eql(intersect(-1,0,   4,1,   1,0,   4,1), [4,1])
-
-    eql(intersect(0,0,   1,1,   3,1,   4,0), [2,2])
-
-    eql(intersect(-1,0,   -2,-1,   1,0,   -1,-1), [-3,-2])
-
-    eql(intersect(-1,0,   -1,1,   1,0,   1,1), [0,0])
-
-    eql(point2(0,0, 0), [0,-1])
-    eql(point2(0,0, Math.PI/2), [1,0])
-    eql(point2(0,0, Math.PI), [0,1])
-
-    eql(point2(5,5, 0), [5,4])
-    eql(point2(0,0, 0), point2(0,0, Math.PI*2))
-
-  
-  }*/
 
   // debug
   if(window.parent!=window){
@@ -360,29 +262,20 @@
 
       // the moment we get this seems fairly consistent for now, so we presume that t3 just occured
 
-      console.log("RECIEVED", e.data, window.performance.now())
-
-      // start from zero
-      console.log("pre", now());
-      offset = -now();
-      console.log("post", now());
-
 
       // map the timings so t3 just happend
 
-      var o = e.data.timings[2]
+      offset = -now();
 
+      var o = e.data.timings[2]
       timings = e.data.timings.map(function(t){
         return t - o;
       });
 
-      console.log("timings- ", timings)
-
-
       go();
+
     }, false);
 
-    console.log("POSTING")
     window.parent.postMessage("HELLO", "*");  
   }
 
