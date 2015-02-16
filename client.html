@@ -8,15 +8,23 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <h2>Timings - press this when instructed</h2>
+  <div id="content">
+    <h2>Timings - press this when instructed</h2>
 
-  <ul id="time-buttons">
-    <li>A <span class="cancel">&times;</span></li>
-    <li>B <span class="cancel">&times;</span></li>
-    <li>C <span class="cancel">&times;</span></li>
-  </ul>
+    <ul id="time-buttons">
+      <li>A</li>
+      <li>B</li>
+      <li>C</li>
+    </ul>
+
+    <p>
+      <a href="#" id="reset">&laquo;reset&raquo;</a>
+    </p>
+  </div>
 
   <div id="noise">
+    <a href="#" id="cancel">&times;</a>
+
     <p>
       turn up your volume
     </p>
@@ -48,17 +56,15 @@
         }
 
       })
+    })
 
-      $('.cancel', this).on('mousedown touchstart', function(e){
-        if($(this).parent().hasClass('last')){
-          e.preventDefault();
-          e.stopPropagation();
-          if(confirm('delete?')){          
-            timings.pop()
-            update()
-          }
-        }
-      })
+    $('#reset, #cancel').on('click', function(e){
+      e.preventDefault();
+      if(confirm('reset timing data?')){
+        timings = [];
+        update();
+        stop();
+      }
     })
 
     function update(){
@@ -66,6 +72,7 @@
         $(this)
           .toggleClass('active', i == timings.length)
           .toggleClass('last', i == timings.length-1)
+          .toggleClass('set', i <= timings.length-1)
       })
     }
 
@@ -121,11 +128,18 @@
     }
 
     function go(){
-      $('#noise').css('opacity',0).show().animate({'opacity':1});
+      $('#noise').fadeIn();
+      $('#content').fadeOut();
+      $(document).scrollTop( 0 );
 
       setTimeout(function(){
         play()
       },1000)
+    }
+
+    function stop(){
+      $('#content').fadeIn();
+      $('#noise').fadeOut();
     }
 
   // a point 1 unit away at `angle`
