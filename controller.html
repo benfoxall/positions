@@ -6,18 +6,22 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <h1>Controller</h1>
+  <h1>Controller <button>Start</button></h1>
 
   <!--h3>todo - post statusses to server <input type="url" /> </h3-->
 
+  
   <hr />
-
-  <div id="time_circle"></div>
   <p id="time_count"></p>
+  <div id="time_circle"></div>
+
 
   <script src="bower_components/d3/d3.js"></script>
   <script type="text/javascript">
-  var width = 400, height = 400, cycle = 30000;
+
+  var started, going;
+
+  var width = 400, height = 400, cycle = 15000;
 
   function progress(t){
     return (t / cycle) % 1;
@@ -41,7 +45,9 @@
                 .attr('x1', width/2)
                 .attr('y1', height/2)
                 .attr('x2', 0)
-                .attr('y2', 0);
+                .attr('y2', 0)
+                .style('stroke', '#f08');
+
 
 
   function x(time){
@@ -59,30 +65,50 @@
   function render(t){
     t = t+off;
 
-    requestAnimationFrame(render);
+    if(!going){requestAnimationFrame(render)} else {return true;}
     if(!t) return; // first call doesn't have timestamp
 
     var n = progress(t);
 
     // this one goes twice round
-    var n2 = n*2;
+    // var n2 = n*2;
 
     path
-      .attr('x2', x(n2))
-      .attr('y2', y(n2))
-      .style('stroke', n2 < 1 ? '#f08' : '#eee');
+      .attr('x2', x(n))
+      .attr('y2', y(n));
 
 
-    if((t%cycle) < 1000){
-      timeCount.innerHTML = 'go';
-      timeCount.style.color =  '#08f';
-    } else {    
+    if(started){
+      path.style('stroke', '#ddd');
+
       var seconds = (cycle - (t%cycle))/1000
       timeCount.innerHTML = ~~seconds+1;
-      timeCount.style.color =  n2 > 1 ? '#f08' : '#eee'
+
+      if((t%cycle) < 3000){
+        timeCount.innerHTML = "GO";
+        go();
+      }
+      // timeCount.style.color =  n2 > 1 ? '#f08' : '#eee'
     }
+    // if((t%cycle) < 1000){
+    //   timeCount.innerHTML = 'go';
+    //   timeCount.style.color =  '#08f';
+    // } else {    
+    //   var seconds = (cycle - (t%cycle))/1000
+    //   timeCount.innerHTML = ~~seconds+1;
+    //   timeCount.style.color =  n2 > 1 ? '#f08' : '#eee'
+    // }
   }
   render(0.00001);
+
+
+  d3.select('button').on('click', function(){started = true})
+
+
+  function go(){
+    svg.style('display', 'none')
+    going = true;
+  }
 
   </script>
 

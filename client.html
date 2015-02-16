@@ -24,18 +24,18 @@
 
   <div id="noise">
     <a href="#" id="cancel">&times;</a>
-
-    <p>
-      turn up your volume
-    </p>
   </div>
 
+  <script src="bower_components/tweenjs/build/tween.min.js"></script>
   <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="demo.js"></script>
 
   <script type="text/javascript">
+    var offset = 0, cycle = 15000;
+
     function now(){
-      return window.performance ? window.performance.now() : 
-              Date.now ? Date.now() : +new Date;
+      return (window.performance ? window.performance.now() : 
+              Date.now ? Date.now() : +new Date)+offset;
     }
 
     var timings = [];
@@ -51,7 +51,13 @@
           timings[i] = t
           update()
           if(timings.length === 3){
-            go()
+            offset = -now();
+
+            timings[0] -= timings[2];
+            timings[1] -= timings[2];
+            timings[2] = 0
+
+            go();
           }
         }
 
@@ -105,10 +111,13 @@
     xhr.send();
 
 
-    var context =
-      typeof(webkitAudioContext) !== 'undefined' ? 
-         new webkitAudioContext() :
-         new AudioContext();
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    window.context = parent.context || new AudioContext();
+
+    // window.context = window.parent.context || 
+    //   typeof(webkitAudioContext) !== 'undefined' ? 
+    //      new webkitAudioContext() :
+    //      new AudioContext();
 
     function play(silent){
 
@@ -127,20 +136,149 @@
       return true;
     }
 
+    // a list of tweens that is robust to 
+    // screen locking etc
+    function TweenList(){
+      this.time = 0;
+    }
+
+    TweenList.prototype.wait = function(t){
+      this.time += t;
+    }
+    TweenList.prototype.add = function(from, to, duration){
+      var t = new TWEEN.Tween(from).to(to, duration).delay(this.time);
+
+      // neither is delay, or duration
+      t.repeat = function(times){
+        console.error("not supported")
+      };
+
+      this.time += duration;
+
+      return t;
+    }
+
     function go(){
       $('#noise').fadeIn();
       $('#content').fadeOut();
       $(document).scrollTop( 0 );
 
-      setTimeout(function(){
-        play()
-      },1000)
+      // work out angles given timestamps
+
+      // setTimeout(function(){
+      //   $('#noise').css('background', 'red')
+      //   // play()
+      // },1000)
+      // setTimeout(function(){
+      //   $('#noise').css('background', 'green')
+      //   // play()
+      // },3000);
+
+      // initialise the various tweens
+
+      // reset any tweens
+      TWEEN.removeAll();
+      TWEEN.update(0.001);
+
+      // addTweens();
+
+      // var tweens = new TweenList();
+
+      // tweens.add({t:0}, {t:1}, 2000)
+      //   .onUpdate(function(){
+      //     var t = timings[1]
+
+      //     var _now = now();
+
+      //     var l = Math.round((Math.sin( ( _now / cycle) * Math.PI*2 )) *200);
+
+      //     if(l > 50) l = 50;
+      //     if(l < -50) l = -50;
+
+      //     l += 50
+
+      //     $('#noise').css('background', 'hsl(150,50%,'+l+'%)');
+      //   });
+
+      // tweens.add({t:0}, {t:1}, 2000)
+      //   .onUpdate(function(){
+
+      //   });
+
+      var t1 = timings[0],
+          t2 = timings[1],
+          t3 = timings[2];
+
+      var c = {};
+
+      c.a1 = (mod(t1-t3, cycle) / cycle) * Math.PI *2;
+      c.a2 = (mod(t2-t3, cycle) / cycle) * Math.PI *2;
+
+      var p1 = [-1,0], p2 = [1, 0];
+
+      var p1_ = point2(p1[0], p1[1], c.a1);
+      var p2_ = point2(p2[0], p2[1], c.a2);
+
+      var xy  = intersect(p1[0],p1[1], p1_[0],p1_[1], p2[0],p2[1], p2_[0],p2_[1]);
+
+      c.x = xy[0];
+      c.y = xy[1];
+
+      console.log(c)
+
+
+
+
+
+
+      var demo = new Demo(
+        {el:document.getElementById('noise')},
+        1, 1,
+        timings,
+        c
+        );
+
+      // _pulses().start(10000)
+
+
+      function update(t){
+        requestAnimationFrame(update);
+
+        demo.update(now())
+
+        // TWEEN.update(now());
+
+        return;
+
+        var t = timings[1]
+
+        var _now = now();
+
+        var l = Math.round((Math.sin( ( _now / cycle) * Math.PI*2 )) *200);
+
+        if(l > 50) l = 50;
+        if(l < -50) l = -50;
+
+        l += 50
+
+        $('#noise').css('background', 'hsl(150,50%,'+l+'%)');
+
+      }
+
+      requestAnimationFrame(update)
     }
 
     function stop(){
       $('#content').fadeIn();
       $('#noise').fadeOut();
     }
+
+
+  // a modulus that will deal with negative numbers
+  function mod(n, m){
+    return ((n % m) + m) % m
+  }
+
 
   // a point 1 unit away at `angle`
   function point2(x, y, angle){
@@ -180,6 +318,7 @@
     ]
   }
 
+  /*
   function test(){
 
     function norm(n){
@@ -213,9 +352,41 @@
     eql(point2(0,0, 0), point2(0,0, Math.PI*2))
 
   
+  }*/
+
+  // debug
+  if(window.parent!=window){
+    window.addEventListener("message", function(e){
+
+      // the moment we get this seems fairly consistent for now, so we presume that t3 just occured
+
+      console.log("RECIEVED", e.data, window.performance.now())
+
+      // start from zero
+      console.log("pre", now());
+      offset = -now();
+      console.log("post", now());
+
+
+      // map the timings so t3 just happend
+
+      var o = e.data.timings[2]
+
+      timings = e.data.timings.map(function(t){
+        return t - o;
+      });
+
+      console.log("timings- ", timings)
+
+
+      go();
+    }, false);
+
+    console.log("POSTING")
+    window.parent.postMessage("HELLO", "*");  
   }
 
-  test()
+
 
 
   </script>
