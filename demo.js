@@ -29,12 +29,12 @@
 
     // initial tween
     this.lastTween = new TWEEN.Tween({})
-      .to({}, 1000)
+      .to({}, 10000)
       .start(this.now = 0.01);
 
 
-    this._pulses();
-    this.blank(10000)
+    // this._pulses();
+    // this.blank(10000)
 
     this._angles();
     this.blank(10000)
@@ -42,9 +42,17 @@
     this._movement();
     this.blank(10000)
 
-
     this._rotation();
-    this.blank(10000)
+    this.blank(10000);
+
+    // close
+    this.queue(
+      new TWEEN.Tween({})
+      .to({}, 1000)
+      .onStart(function(){
+        window.stop && window.stop();
+      })
+    )
 
   }
 
